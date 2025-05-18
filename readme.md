@@ -18,7 +18,7 @@ graph = KnowledgeGraph(model="gemma3:12b")
 text = '''Australia’s centre-left prime minister, Anthony Albanese, has won a second term with a crushing victory over the opposition, whose rightwing leader, Peter Dutton, failed to brush off comparisons with Donald Trump and ended up losing his own seat.
 Australians have voted for a future that holds true to these values, a future built on everything that brings us together as Australians, and everything that sets our nation apart from the world'''
 
-graph.add_to_graph(text)
+graph.add_to_graph(text, "https://en.wikipedia.org/wiki/Vincent_de_Groof", "Wikipedia"))
 ```
 
 <img src=image.png>
@@ -150,7 +150,81 @@ system_prompt_1 = "prompt"
 examples = "positive extracted examples"
 
 def generate_prompt(self, text, examples):
+
 ```
+
+## Pipeline: knowledge graph ingestion pipeline
+Use RabbitMQ to Publish/Consume messages.
+
+The messages will be processed and merged to the knowledge graph
+
+![alt text](<kt pipeline.png>)
+
+Message format:
+```json
+{
+  "src": "https://en.wikipedia.org/wiki/Vincent_de_Groof",
+  "src_type": "Newspaper",
+  "text": "Vincent de Groof (6 December 1830 – 9 July 1874) was a Dutch-born Belgian early pioneering aeronaut. He created an early model of an ornithopter and successfully demonstrated its use before fatally crashing the machine in London, UK.[1] "
+}
+
+```
+
+### Pipeline dependecy RabbitMq
+
+Start rabbitmq:
+```bash
+docker run -d --rm --network development_network --hostname rabbitmq --name rabbitmq -p 15672:15672 -p 5672:5672 rabbitmq:3.8.12-rc.1-management
+```
+
+
+
+## Docker
+
+The pipeline consumer can be setup to run in a docker container.
+
+Build the image:
+```bash
+docker build -t kt-consumer .
+```
+
+Run the container:
+```bash
+docker run -e RABBITMQ_PORT=5672 \
+           -e RABBITMQ_HOST=rabbitmq \
+           -e RABBITMQ_VHOST=dev \
+           -e RABBITMQ_QUEUE=chomsky.info \
+           -e RABBITMQ_USER=guest \
+           -e RABBITMQ_PASSWORD=guest \
+           -e OLLAMA_MODEL=llama3.2 \
+           -e OLLAMA_HOST=http://ollama:11434 \
+           -e NEO4J_URI=bolt://neo4j-apoc:7687 \
+           -e NEO4J_USERNAME=neo4j \
+           -e NEO4J_PASSWORD=password \
+           --network development_network \
+           --rm \
+           --name knowledge_consumer \
+           --hostname knowledge_consumer \
+           kt-consumer
+```
+
+Ollama should be running in a docker container; or a network route should be available.
+
+Run the following for a CPU-Only ollama instance:
+
+```bash
+docker run -d --rm 
+    -v /usr/share/ollama/.ollama:/root/.ollama \
+    -p 11434:11434 \
+    --network development_network \
+    --name ollama \
+    --hostname ollama  \
+    ollama/ollama
+
+```
+
+Note: replace the path **/usr/share/ollama/.ollama** to the host's ollama model path
+
 
 ## License
 

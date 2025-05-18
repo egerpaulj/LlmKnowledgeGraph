@@ -1,0 +1,5 @@
+typing
+py2neo
+pydantic
+ollama
+pika
