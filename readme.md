@@ -158,7 +158,7 @@ Use RabbitMQ to Publish/Consume messages.
 
 The messages will be processed and merged to the knowledge graph
 
-![alt text](<kt pipeline.png>)
+<img src=kt_pipeline.png/>
 
 Message format:
 ```json
