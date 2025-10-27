@@ -19,5 +19,12 @@ ENV OLLAMA_MODEL=default-model
 ENV NEO4J_URI=neo4j://localhost:7687
 ENV NEO4J_USERNAME=neo4j
 ENV NEO4J_PASSWORD=password
+ENV MLFLOW_TRACKING_HOST=http://localhost:5050
+ENV MLFLOW_SYSTEM_PROMPT_ID=NER_System/@relationship
+ENV MLFLOW_USER_PROMPT_ID=NER_User/@relationship
 
-CMD ["python", "consumer.py"]
+
+
+EXPOSE 7777
+
+CMD ["python", "rabbitmq_knowledge_graph_builder.py "]

@@ -1,4 +1,5 @@
 # LLM Knowledge Graph
+
 Use an LLM to generate a knowledge graph.
 
 The purpose of the library is to extract entities and their relationships without a pre-defined schema.
@@ -21,22 +22,17 @@ Australians have voted for a future that holds true to these values, a future bu
 graph.add_to_graph(text, "https://en.wikipedia.org/wiki/Vincent_de_Groof", "Wikipedia"))
 ```
 
-<img src=image.png>
+<img src=Documentation/image.png>
 
-#### Try it using a Jupyter Notebook:
 
-[working_example.ipynb](working_example.ipynb)
+## Try it using a Jupyter Notebook:
+
+[working_example.ipynb](JupyterNotebooks/working_example.ipynb)
 
 Use the conda environment:
 
-<img src=jupyter.png>
+<img src=Documentation/jupyter.png>
 
-
-## Dependencies
-
-- Neo4j Database
-- Python
-- Local LLM (Ollama)
 
 ### Environment setup
 
@@ -74,9 +70,7 @@ http://localhost:7474/browser/
 Install the following dependencies:
 
 ```bash
-pip install -U py2neo
-pip install -U pydantic
-pip install -U ollama
+pip install -r requirements.txt
 ```
 
 Alternatively, setup a conda environment and install the dependencies:
@@ -84,9 +78,7 @@ Alternatively, setup a conda environment and install the dependencies:
 ```bash
 conda create -n knowledge-graph python=3.10
 conda activate knowledge-graph
-pip install -U py2neo
-pip install -U pydantic
-pip install -U ollama
+pip install -r requirements.txt
 # if running Jupyter notebook on VSCODE
 pip install -U ipykernel
 ```
@@ -106,22 +98,34 @@ ollama run gemma3:12b
 
 Note: if you have a GPU or an environment with High Bandwidth Memory, then it is recommended to run a larger model.
 
-E.g.
-**gemma3:27b**
+## Example
+Model: **gemma3:27b**
 
-Note: when changing the model, specify the model name
-
-E.g.
 
 ```python
-from knowledge_graph import KnowledgeGraph
+from LlmKnowledgeGraph.InferenceApi.relationshipInference import RelationshipInferenceProvider
 
-graph = KnowledgeGraph(model="gemma3:27b")
+from LlmKnowledgeGraph.KnowledgeGraph.graph import KnowledgeGraph 
+
+relationships_extractor = RelationshipInferenceProvider(
+            model="gemma3:27b",  
+            ollama_host="http://localhost:11434", 
+            mlflow_tracking_host="http://localhost:5000", 
+            mlflow_system_prompt_id = None, # if mlflow prompt repository is not setup ("NER_System/1")
+            mlflow_user_prompt_id = None #  if mlflow prompt repository is not setup ("NER_User/1")
+        
+graph=KnowledgeGraph()
+
+# Get relationships from text
+relationships = self.relationships_extractor.get_relationships(text=text)
+
+# Merge the relationships to a knowledge graph                    
+graph.add_or_merge_relationships(relationships, src=src, src_type=src_type)
 ```
 
-## Hyper parameters and prompt
+## Hyper parameters
 
-The LLM prompt and hyper parameters can be defined, these would help to refine the expected output for concrete use-cases:
+The LLM hyper parameters can be defined, these would help to refine the expected output for concrete use-cases:
 
 ```python
 class LlmConfig:
@@ -138,27 +142,68 @@ class LlmConfig:
     num_thread: int
 ```
 
-The prompts and examples can be adapted in:
-- System prompt
-- Examples
-- User prompt
+## Prompt management
 
-**knowledge_graph.py**
+See default prompt in
+[prompts.py](InferenceApi/prompts.py)
+
+Prompts can vary between models/providers. Version controlling the prompts and annotating the prompt helps with faster evaluation.
+
+MlFlow provides a prompt repository and is used to get the user prompt and system prompt.
+
+E.g. prompts for named entity recognition
 
 ```bash
-system_prompt_1 = "prompt"
-examples = "positive extracted examples"
-
-def generate_prompt(self, text, examples):
-
+-e MLFLOW_SYSTEM_PROMPT_ID=NER_System/@entity \
+-e MLFLOW_USER_PROMPT_ID=NER_User/@entity \
 ```
 
-## Pipeline: knowledge graph ingestion pipeline
+E.g. prompts for a knowledge graph using named entity recognition (NER) and named entity linking (NEL)
+
+```bash
+-e MLFLOW_SYSTEM_PROMPT_ID=NER_System/@relationship \
+-e MLFLOW_USER_PROMPT_ID=NER_User/@relationship \
+```
+>
+
+## Data pipelines
+
+Two data pipeline examples show how Named Entity Recognition can be used:
+
+- Decorate text with entities
+- Build a knowledge graph
+
+E.g.
+
+### Mongo DB entitiy extractor
+
+In this example text is read from a MongoDb Collection and the entities are extracted/stored back to the mongodb collection.
+
+The container would read a collection in batches and perform NER.
+
+```bash
+docker run -e OLLAMA_MODEL=gemma3:12b \
+           -e OLLAMA_HOST=http://ollama:11434 \
+           -e MONGODB_CONNECTION_STRING=mongodb://mongodb:27017 \
+           -e MLFLOW_SYSTEM_PROMPT_ID=NER_System/@entity \
+           -e MLFLOW_USER_PROMPT_ID=NER_User/@entity \
+           -e MLFLOW_TRACKING_HOST=http://mlflow:5000
+           --network development_network \
+           --rm \
+           --name entity_extractor \
+           --hostname entity_extractor \
+           mongodb-entity-extractor
+```
+
+
+### RabbitMQ Knowledge Graph Builder
+
 Use RabbitMQ to Publish/Consume messages.
 
-The messages will be processed and merged to the knowledge graph
+The messages will be processed and merged to a knowledge graph
 
-![alt text](<kt pipeline.png>)
+
+<img src=Documentation/kt_pipeline.png>
 
 Message format:
 ```json
@@ -177,36 +222,31 @@ Start rabbitmq:
 docker run -d --rm --network development_network --hostname rabbitmq --name rabbitmq -p 15672:15672 -p 5672:5672 rabbitmq:3.8.12-rc.1-management
 ```
 
+In this example data is published to a rabbitmq queue. The data is consumed and appended to a Neo4j Knowledge Graph
 
-
-## Docker
-
-The pipeline consumer can be setup to run in a docker container.
-
-Build the image:
-```bash
-docker build -t kt-consumer .
-```
-
-Run the container:
 ```bash
 docker run -e RABBITMQ_PORT=5672 \
            -e RABBITMQ_HOST=rabbitmq \
            -e RABBITMQ_VHOST=dev \
-           -e RABBITMQ_QUEUE=chomsky.info \
+           -e RABBITMQ_QUEUE=DatapipelineCleanData \
            -e RABBITMQ_USER=guest \
            -e RABBITMQ_PASSWORD=guest \
-           -e OLLAMA_MODEL=llama3.2 \
+           -e OLLAMA_MODEL=gemma3:12b \
            -e OLLAMA_HOST=http://ollama:11434 \
            -e NEO4J_URI=bolt://neo4j-apoc:7687 \
            -e NEO4J_USERNAME=neo4j \
            -e NEO4J_PASSWORD=password \
+           -e MLFLOW_SYSTEM_PROMPT_ID=NER_System/@relationship \
+           -e MLFLOW_USER_PROMPT_ID=NER_User/@relationship \
+           -e MLFLOW_TRACKING_HOST=http://mlflow:5000 \
            --network development_network \
            --rm \
            --name knowledge_consumer \
            --hostname knowledge_consumer \
-           kt-consumer
-```
+           rabbit-mq-graph-builder
+``` 
+
+### Dependencies
 
 Ollama should be running in a docker container; or a network route should be available.
 
@@ -225,6 +265,42 @@ docker run -d --rm
 
 Note: replace the path **/usr/share/ollama/.ollama** to the host's ollama model path
 
+
+## Evaluation
+
+Due to the sheer amount of model options and inference providers; it is necessary to evaluate.
+
+Evaluation allows methodical selection of hyper parameters:
+- User Prompt (based on model and provider)
+- System Prompt (based on model and provider)
+- Model
+
+### Evaluation criteria
+The first step of an evaluation criteria is to define ground truths:
+
+Text --> Expected entities
+
+E.g.
+
+```csv
+"Input", "GroundTruth"
+"Amazon and Google announced a partnership.","Amazon|Google"
+``` 
+
+Based on the ground truth calculate the following:
+- True positives (TP)
+- False positives (FP)
+- False negatives (FN)
+
+Using the above calculate the following:
+- Precision
+- Recall
+
+Finally calculate an F1 score.
+
+Publish the evaluation metrics. ML-Flow is a good tool for analysis.
+
+TOODOO -> screenshots of evaluation runs. Show analysis of latency comparison and precision/recall
 
 ## License
 
