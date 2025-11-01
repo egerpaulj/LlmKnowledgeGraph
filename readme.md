@@ -322,6 +322,7 @@ $$
 \text{Precision} &= \frac{TP}{TP + FP}
 \end{aligned}
 $$
+
 Where:
 - \( TP \) = True Positives
 - \( FP \) = False Positives
@@ -337,6 +338,7 @@ $$
 \text{Recall} &= \frac{TP}{TP + FN}
 \end{aligned}
 $$
+
 Where:
 - \( TP \) = True Positives
 - \( FN \) = False Negatives
