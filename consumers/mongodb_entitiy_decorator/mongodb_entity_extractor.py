@@ -1,10 +1,10 @@
-import threading
+
 from pymongo import MongoClient
-from prometheus_client import Counter, Summary, Gauge, start_http_server
+from prometheus_client import Counter, Summary
 import logging
 import os
 import psutil
-from LlmKnowledgeGraph.InferenceApi.entityInference import EntityInferenceProvider, display_entities, get_unique_entity_names
+from llm_ner_nel.inference_api.entity_inference import EntityInferenceProvider, display_entities, get_unique_entity_names
 
 logging.basicConfig(
     level=logging.INFO,  # Set the minimum log level
@@ -14,21 +14,6 @@ logging.basicConfig(
 MESSAGE_COUNT = Counter('messages_processed_total_mongodb', 'Total number of messages processed')
 MESSAGE_FAIL_COUNT = Counter('messages_processed_total_mongodb_failed', 'Total number of messages processed')
 MESSAGE_PROCESSING_TIME = Summary('message_processing_seconds_mongodb', 'Time spent processing a message')
-CPU_USAGE = Gauge('process_cpu_percent_mongodb', 'Process CPU usage percent')
-MEMORY_USAGE = Gauge('process_memory_mb_mongodb', 'Process memory usage in MB')
-
-def monitor_resources():
-            process = psutil.Process(os.getpid())
-            while True:
-                try:
-                    cpu = process.cpu_percent(interval=1)
-                    mem = process.memory_info().rss / (1024 * 1024)  # MB
-                    CPU_USAGE.set(cpu)
-                    MEMORY_USAGE.set(mem)
-                except Exception as e:
-                    logging.error(f"Error updating resource metrics: {e}")
-                import time
-                time.sleep(5)
                 
 class MongoDBConsumer:
     def __init__(self, database: str, collection: str):
@@ -108,20 +93,3 @@ class MongoDBConsumer:
         finally:
             self.client.close()
             
-
-
-
-if __name__ == "__main__":
-    consumer = MongoDBConsumer(
-        database="Crawler",
-        collection="crawler_responses_cleaned"
-        
-    )
-    start_http_server(7777)
-    logging.info("Prometheus metrics exposed on port 7777.")
-    
-    # Monitor CPU and memory usage in the background
-    t = threading.Thread(target=monitor_resources, daemon=True)
-    t.start()
-    
-    consumer.extract_entities()

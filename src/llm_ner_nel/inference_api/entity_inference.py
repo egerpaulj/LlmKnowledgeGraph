@@ -1,16 +1,18 @@
-from LlmKnowledgeGraph.KnowledgeGraph.neoDbConfig import NeoDbConfig
-from LlmKnowledgeGraph.dto import Entities
-from prompts import default_entity_recognition_system_prompt, default_entity_recognition_user_prompt
+from llm_ner_nel.core.dto import Entities
+from llm_ner_nel.inference_api.prompts import default_entity_recognition_system_prompt, default_entity_recognition_user_prompt
+from llm_ner_nel.inference_api.llm_config import LlmConfig
 from ollama import Client
 import logging
 from typing import List
-from llmConfig import LlmConfig
 import mlflow
 
-def display_entities(entities : Entities) -> None:
-    logging.info(entities.topic)
+def display_entities(entities : Entities, console_log: bool) -> None:
     for entity in entities.entities:
-        logging.info(f"{entity.name}-[{entity.type}]. ({entity.condifence})")
+        message = f"{entity.name}-[{entity.type}]. ({entity.condifence})"
+        logging.info(message)
+        
+        if(console_log):
+            print(message)
         
         
 def get_unique_entity_names(entities: Entities) -> List[str]:

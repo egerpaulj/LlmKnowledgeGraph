@@ -19,4 +19,4 @@ ENV MLFLOW_USER_PROMPT_ID=NER_User/@entity
 
 EXPOSE 7777
 
-CMD ["python", "mongodb_entity_extractor.py "]
+CMD ["python", "main.py "]

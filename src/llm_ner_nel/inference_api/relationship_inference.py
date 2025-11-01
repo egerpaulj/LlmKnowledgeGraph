@@ -1,23 +1,24 @@
-from LlmKnowledgeGraph.KnowledgeGraph.neoDbConfig import NeoDbConfig
-from LlmKnowledgeGraph.dto import Relationships
-from prompts import default_entity_recognition_system_prompt, default_entity_recognition_user_prompt
+from llm_ner_nel.core.dto import Relationships
+from llm_ner_nel.inference_api.prompts import default_entity_recognition_system_prompt, default_entity_recognition_user_prompt
+from llm_ner_nel.inference_api.llm_config import LlmConfig
 from ollama import Client
 import logging
-from llmConfig import LlmConfig
 import mlflow
 
 
-def display_relationships(relationships : Relationships) -> None:
+def display_relationships(relationships : Relationships, console_log: bool) -> None:
     logging.info(relationships.topic)
     for rel in relationships.relationships:
-        logging.info(f"{rel.head}:({rel.head_confidence}) ({rel.head_type}) --[{rel.relation}]-> {rel.tail}:({rel.tail_confidence}) ({rel.tail_type})")
+        message = f"{rel.head}:({rel.head_confidence}) ({rel.head_type}) --[{rel.relation}]-> {rel.tail}:({rel.tail_confidence}) ({rel.tail_type})"
+        if(console_log):
+            print(message)
+        logging.info(message)
         
 
 class RelationshipInferenceProvider:
     model: str
     ollama_host: str
     llm_config: LlmConfig
-    neo_config: NeoDbConfig
     mlflow_tracking_host: str
     mlflow_system_prompt_id: str
     mlflow_user_prompt_id: str

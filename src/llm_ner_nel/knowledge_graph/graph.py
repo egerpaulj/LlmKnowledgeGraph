@@ -1,5 +1,5 @@
-from neoDbConfig import NeoDbConfig
-from LlmKnowledgeGraph.dto import Relationships
+from llm_ner_nel.knowledge_graph.neo_db_config import NeoDbConfig
+from llm_ner_nel.core.dto import Relationships
 from py2neo import Graph, Node, Relationship
 from typing import List
 

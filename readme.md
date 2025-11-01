@@ -11,27 +11,38 @@ The purpose of the library is to extract entities and their relationships withou
 **Output**: Merge the nodes into the Knowledge Graph database
 
 E.g.
-```python
-from knowledge_graph import KnowledgeGraph
+```bash
+pip install -e .
+``` 
 
-graph = KnowledgeGraph(model="gemma3:12b")
+```python
+
+from llm_ner_nel.inference_api.relationship_inference import RelationshipInferenceProvider, display_relationships
+from llm_ner_nel.knowledge_graph.graph import KnowledgeGraph
 
 text = '''Australia’s centre-left prime minister, Anthony Albanese, has won a second term with a crushing victory over the opposition, whose rightwing leader, Peter Dutton, failed to brush off comparisons with Donald Trump and ended up losing his own seat.
 Australians have voted for a future that holds true to these values, a future built on everything that brings us together as Australians, and everything that sets our nation apart from the world'''
 
-graph.add_to_graph(text, "https://en.wikipedia.org/wiki/Vincent_de_Groof", "Wikipedia"))
+inference_provider = RelationshipInferenceProvider(model="llama3.2") 
+relationships = inference_provider.get_relationships(text)
+
+display_relationships(relationships, console_log=True)
+
+graph.add_or_merge_relationships(relationships, "https://en.wikipedia.org/wiki/Vincent_de_Groof", "Wikipedia")
 ```
 
-<img src=Documentation/image.png>
+<img src="documentation/image.png">
 
 
 ## Try it using a Jupyter Notebook:
 
-[working_example.ipynb](JupyterNotebooks/working_example.ipynb)
+[knowledge_graph.ipynb](notebooks/knowledge_graph.ipynb)
+
+[ner.ipynb](notebooks/ner.ipynb)
 
 Use the conda environment:
 
-<img src=Documentation/jupyter.png>
+<img src=documentation/jupyter.png>
 
 
 ### Environment setup
@@ -103,9 +114,8 @@ Model: **gemma3:27b**
 
 
 ```python
-from LlmKnowledgeGraph.InferenceApi.relationshipInference import RelationshipInferenceProvider
-
-from LlmKnowledgeGraph.KnowledgeGraph.graph import KnowledgeGraph 
+from llm_ner_nel.inference_api.relationship_inference import RelationshipInferenceProvider, display_relationships
+from llm_ner_nel.knowledge_graph.graph import KnowledgeGraph
 
 relationships_extractor = RelationshipInferenceProvider(
             model="gemma3:27b",  
@@ -113,14 +123,15 @@ relationships_extractor = RelationshipInferenceProvider(
             mlflow_tracking_host="http://localhost:5000", 
             mlflow_system_prompt_id = None, # if mlflow prompt repository is not setup ("NER_System/1")
             mlflow_user_prompt_id = None #  if mlflow prompt repository is not setup ("NER_User/1")
+)
         
 graph=KnowledgeGraph()
 
 # Get relationships from text
-relationships = self.relationships_extractor.get_relationships(text=text)
+relationships = relationships_extractor.get_relationships(text=text)
 
 # Merge the relationships to a knowledge graph                    
-graph.add_or_merge_relationships(relationships, src=src, src_type=src_type)
+graph.add_or_merge_relationships(relationships, src="book", src_type="politics")
 ```
 
 ## Hyper parameters
@@ -145,7 +156,7 @@ class LlmConfig:
 ## Prompt management
 
 See default prompt in
-[prompts.py](InferenceApi/prompts.py)
+[prompts.py](src/llm_ner_nel/inference_api/prompts.py)
 
 Prompts can vary between models/providers. Version controlling the prompts and annotating the prompt helps with faster evaluation.
 
@@ -164,9 +175,10 @@ E.g. prompts for a knowledge graph using named entity recognition (NER) and name
 -e MLFLOW_SYSTEM_PROMPT_ID=NER_System/@relationship \
 -e MLFLOW_USER_PROMPT_ID=NER_User/@relationship \
 ```
->
 
-## Data pipelines
+<img src="documentation/eval_prompts.png"/>
+
+## Data pipelines - Consumers
 
 Two data pipeline examples show how Named Entity Recognition can be used:
 
@@ -203,7 +215,7 @@ Use RabbitMQ to Publish/Consume messages.
 The messages will be processed and merged to a knowledge graph
 
 
-<img src=Documentation/kt_pipeline.png>
+<img src="documentation/kt_pipeline.png">
 
 Message format:
 ```json
@@ -298,9 +310,58 @@ Using the above calculate the following:
 
 Finally calculate an F1 score.
 
-Publish the evaluation metrics. ML-Flow is a good tool for analysis.
+### Precision
 
-TOODOO -> screenshots of evaluation runs. Show analysis of latency comparison and precision/recall
+Proportion of correctly identified entities (accuracy).
+
+High precision means that when the model identifies an entity, it is likely to be correct.
+
+
+$$
+\begin{aligned}
+\text{Precision} &= \frac{TP}{TP + FP}
+\end{aligned}
+$$
+Where:
+- \( TP \) = True Positives
+- \( FP \) = False Positives
+
+### Recall 
+
+Ability to find the relevant entities.
+
+High recall means the model has detected most of the actual entities in the text.
+
+$$
+\begin{aligned}
+\text{Recall} &= \frac{TP}{TP + FN}
+\end{aligned}
+$$
+Where:
+- \( TP \) = True Positives
+- \( FN \) = False Negatives
+
+### F1 Score
+$$
+\begin{aligned}
+F1 &= 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
+\end{aligned}
+$$
+
+
+
+
+## Experiments
+
+Publish the evaluation metrics for each "experiment". 
+
+ML-Flow is a good tool for analysis.
+
+<img src="documentation/eval_experiments.png" width="800"/>
+
+## Metrics
+
+<img src="documentation/eval_metrics.png" width="1200"/>
 
 ## License
 

@@ -27,4 +27,4 @@ ENV MLFLOW_USER_PROMPT_ID=NER_User/@relationship
 
 EXPOSE 7777
 
-CMD ["python", "rabbitmq_knowledge_graph_builder.py "]
+CMD ["python", "main.py "]

@@ -1,0 +1,10 @@
+[project]
+name = "llm_ner_nel"
+version = "0.1.0"
+description = "project to run inference to obtain NER and NEL, including knowledge graph construction and evaluation"
+readme = "readme.md"
+requires-python = "==3.10.16"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["llm_ner_nel", "*"]
