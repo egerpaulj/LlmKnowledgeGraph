@@ -57,19 +57,6 @@ display_relationships(relationships, console_log=True)
 graph.add_or_merge_relationships(relationships, "https://en.wikipedia.org/wiki/Vincent_de_Groof", "Wikipedia")
 ```
 
-<img src="documentation/image.png">
-
-
-## Try it using a Jupyter Notebook:
-
-[knowledge_graph.ipynb](notebooks/knowledge_graph.ipynb)
-
-[ner.ipynb](notebooks/ner.ipynb)
-
-Use the conda environment:
-
-<img src=documentation/jupyter.png>
-
 
 ### Environment setup
 
@@ -102,25 +89,8 @@ http://localhost:7474/browser/
 - Username: neo4j
 - Password: password
 
-#### Python dependencies
 
-Install the following dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Alternatively, setup a conda environment and install the dependencies:
-
-```bash
-conda create -n knowledge-graph python=3.10
-conda activate knowledge-graph
-pip install -r requirements.txt
-# if running Jupyter notebook on VSCODE
-pip install -U ipykernel
-```
-
-#### Local LLM - Ollama
+## Local LLM - Ollama
 
 Run a local LLM using OLLAMA.
 
@@ -181,9 +151,6 @@ class LlmConfig:
 
 ## Prompt management
 
-See default prompt in
-[prompts.py](src/llm_ner_nel/inference_api/prompts.py)
-
 Prompts can vary between models/providers. Version controlling the prompts and annotating the prompt helps with faster evaluation.
 
 MlFlow provides a prompt repository and is used to get the user prompt and system prompt.
@@ -240,8 +207,6 @@ Use RabbitMQ to Publish/Consume messages.
 
 The messages will be processed and merged to a knowledge graph
 
-
-<img src="documentation/kt_pipeline.png">
 
 Message format:
 ```json
@@ -384,12 +349,6 @@ $$
 Publish the evaluation metrics for each "experiment". 
 
 ML-Flow is a good tool for analysis.
-
-<img src="documentation/eval_experiments.png" width="800"/>
-
-## Metrics
-
-<img src="documentation/eval_metrics.png" width="1200"/>
 
 ## License
 
