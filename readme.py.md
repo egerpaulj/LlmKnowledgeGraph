@@ -169,7 +169,6 @@ E.g. prompts for a knowledge graph using named entity recognition (NER) and name
 -e MLFLOW_USER_PROMPT_ID=NER_User/@relationship \
 ```
 
-<img src="documentation/eval_prompts.png"/>
 
 ## Data pipelines - Consumers
 

@@ -213,6 +213,27 @@ Two data pipeline examples show how Named Entity Recognition can be used:
 
 E.g.
 
+### PDF Knowledge Graph Builder
+
+In this example, a folder is passed as an argument, entities and their relationships are extracted from the PDF documents located in the folder. The relationships are merged to the Neo4J knowledge graph.
+
+```bash
+docker run -e OLLAMA_MODEL=gemma3:12b \
+           -e OLLAMA_HOST=http://ollama:11434 \
+           -e MLFLOW_SYSTEM_PROMPT_ID=NER_System/@entity \
+           -e MLFLOW_USER_PROMPT_ID=NER_User/@entity \
+           -e MLFLOW_TRACKING_HOST=http://mlflow:5000
+           -e NEO4J_URI=bolt://neo4j-apoc:7687 \
+           -e NEO4J_USERNAME=neo4j \
+           -e NEO4J_PASSWORD=password \
+           -v /PATH_TO_FOLDERS_WITH_PDFS:/mnt
+           --network development_network \
+           --rm \
+           --name pdf_graph_builder \
+           --hostname pdf_graph_builder \
+           pdf_graph_builder
+```
+
 ### Mongo DB entitiy extractor
 
 In this example text is read from a MongoDb Collection and the entities are extracted/stored back to the mongodb collection.
