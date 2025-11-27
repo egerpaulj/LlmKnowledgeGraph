@@ -1,4 +1,4 @@
-from llm_ner_nel.inference_api.relationship_inference import RelationshipInferenceProvider
+from llm_ner_nel.inference_api.relationship_inference import RelationshipInferenceProvider, display_relationships
 from llm_ner_nel.knowledge_graph.graph import KnowledgeGraph 
 import logging
 from pathlib import Path
@@ -40,10 +40,11 @@ class PdfConsumer:
                 for idx, page in enumerate(reader.pages, start=1):
                     try:
                         text = page.extract_text() or ""
+                        logging.info(text)
                     except Exception as e:
                         logging.warning("Failed to extract text from %s page %d: %s", file.name, idx, e)
                         text = ""
-                    title = file.name
+                    title = ""
                     snippet = ""
                     logging.info(f"Processing: {file.name} - page {idx}")
                     if text:
@@ -61,10 +62,14 @@ class PdfConsumer:
                             if ln.istitle() and len(ln.split()) <= 10:
                                 title = ln
                                 break
-                        snippet = (lines[0] if lines else "")[:300]
-                        logging.info(f"Merging relationships")
-                        relationships = self.relationships_extractor.get_relationships(text=snippet)
-                        relationships.topic = title
+                        snippet = (lines[0] if lines else "")[:50]
+                        
+                        logging.info(f"Get relationships")
+                        relationships = self.relationships_extractor.get_relationships(text=text)
+                        display_relationships(relationships, True)
+                        relationships.topic = title if title else snippet
+                        
+                        logging.info(f"Merge relationships")
                         self.graph.add_or_merge_relationships(result=relationships, src=file.name, src_type="pdf")
             except Exception as e:
                 logging.error("Failed to read %s: %s", file.name, e)
