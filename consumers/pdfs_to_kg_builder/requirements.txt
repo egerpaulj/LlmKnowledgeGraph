@@ -8,3 +8,5 @@ psutil
 pymongo
 mlflow
 PyPDF2
+EbookLib
+beautifulsoup4
