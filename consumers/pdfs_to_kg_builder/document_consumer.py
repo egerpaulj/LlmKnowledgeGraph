@@ -1,16 +1,16 @@
-from llm_ner_nel.inference_api.relationship_inference import RelationshipInferenceProvider
+from llm_ner_nel.inference_api.relationship_inference import RelationshipInferenceProvider, display_relationships
 from llm_ner_nel.knowledge_graph.graph import KnowledgeGraph 
 import logging
 from pathlib import Path
-from .strategies.pdf_strategy import PdfProcessorStrategy
-from .strategies.epub_strategy import EpubProcessorStrategy
+from strategies.pdf_strategy import PdfProcessorStrategy
+from strategies.epub_strategy import EpubProcessorStrategy
 
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
 )
 
-class PdfConsumer:
+class DocumentConsumer:
     def __init__(self, 
                  ollama_host, ollama_model, 
                  mlflow_host, mlflow_system_prompt_id, mlflow_user_prompt_id):
@@ -38,19 +38,23 @@ class PdfConsumer:
             
             strategy = self.strategies.get(file.suffix.lower())
             if not strategy:
-                logging.info("Skipping unsupported file: %s", file.name)
+                logging.warning("Skipping unsupported file: %s", file.name)
                 continue
             
             try:
-                for title, text in strategy.process(str(file)):
-                    snippet = ""
+                for document_page in strategy.process(str(file)):
+                    title = document_page.title
+                    text = document_page.text
                     logging.info(f"Processing: {file.name} - {title}")
+                    
                     if text:
-                        lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
-                        snippet = (lines[0] if lines else "")[:300]
+                        logging.info(text)
                         logging.info(f"Merging relationships")
-                        relationships = self.relationships_extractor.get_relationships(text=snippet)
+                        
+                        relationships = self.relationships_extractor.get_relationships(text=text)
                         relationships.topic = title
-                        self.graph.add_or_merge_relationships(result=relationships, src=file.name, src_type=file.suffix.lower()[1:])
+                        
+                        display_relationships(relationships=relationships, console_log=True)
+                        self.graph.add_or_merge_relationships(result=relationships, src=f"{file.name}-{title}", src_type=file.suffix.lower()[1:])
             except Exception as e:
                 logging.error("Failed to read %s: %s", file.name, e)

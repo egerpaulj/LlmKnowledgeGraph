@@ -3,7 +3,7 @@ Usage (example):
 python main.py --path-to-dir /mnt/pdfs
 """
 import argparse
-from pdf_consumer import PdfConsumer
+from document_consumer import DocumentConsumer
 
 import sys
 import logging
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     mlflow_user_prompt_id = os.getenv('MLFLOW_USER_PROMPT_ID', None)
         
 
-    consumer = PdfConsumer(
+    consumer = DocumentConsumer(
         ollama_host=ollama_host,
         ollama_model=ollama_model,
         mlflow_host=mlflow_tracking_host,

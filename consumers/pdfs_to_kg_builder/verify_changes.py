@@ -8,7 +8,7 @@ sys.path.append('/home/user/src/LlmKnowledgeGraph/consumers/pdfs_to_kg_builder')
 
 from strategies.pdf_strategy import PdfProcessorStrategy
 from strategies.epub_strategy import EpubProcessorStrategy
-from pdf_consumer import PdfConsumer
+from consumers.pdfs_to_kg_builder.document_consumer import DocumentConsumer
 
 class TestDocumentStrategies(unittest.TestCase):
 
@@ -56,7 +56,7 @@ class TestDocumentStrategies(unittest.TestCase):
         mock_page.extract_text.return_value = "Chapter 1\nThis is some text."
         mock_pdf_reader.return_value.pages = [mock_page]
         
-        consumer = PdfConsumer("host", "model", "mlflow", "sys", "user")
+        consumer = DocumentConsumer("host", "model", "mlflow", "sys", "user")
         
         # Mock file system
         with patch('pathlib.Path.exists', return_value=True), \

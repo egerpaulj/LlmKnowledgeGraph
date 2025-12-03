@@ -1,12 +1,13 @@
 import logging
-import re
-from pathlib import Path
-from typing import Generator, Tuple
-from PyPDF2 import PdfReader
-from .document_strategy import DocumentProcessorStrategy
 
-class PdfProcessorStrategy(DocumentProcessorStrategy):
-    def process(self, file_path: str) -> Generator[Tuple[str, str], None, None]:
+from pathlib import Path
+from typing import Generator
+from PyPDF2 import PdfReader
+from strategies.document_strategy import DocumentProcessorStrategyBase, DocumentPage
+
+class PdfProcessorStrategy(DocumentProcessorStrategyBase):
+        
+    def process(self, file_path: str) -> Generator[DocumentPage, None, None]:
         file = Path(file_path)
         try:
             reader = PdfReader(str(file))
@@ -17,24 +18,14 @@ class PdfProcessorStrategy(DocumentProcessorStrategy):
                 except Exception as e:
                     logging.warning("Failed to extract text from %s page %d: %s", file.name, idx, e)
                     text = ""
-                
-                title = file.name
+                    
                 if text:
-                    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
-                    for ln in lines[:6]:
-                        if re.search(r'chapter\s+\d+', ln, re.I):
-                            title = ln
-                            break
-                        if re.search(r'^\s*title[:\-\s]', ln, re.I):
-                            title = ln
-                            break
-                        if ln.isupper() and 3 <= len(ln) <= 200 and len(ln.split()) <= 12:
-                            title = ln
-                            break
-                        if ln.istitle() and len(ln.split()) <= 10:
-                            title = ln
-                            break
-                
-                yield title, text
+                    title = self.parse_title(text=text, file_name=file.name)
+                    words = text.split()
+                    
+                    for i in range(0, len(words), DocumentProcessorStrategyBase.CHUNK_WORD_SIZE):
+                        text = ' '.join(words[i:i + DocumentProcessorStrategyBase.CHUNK_WORD_SIZE])
+                        if text.strip():
+                            yield DocumentPage(title=title, text=text)
         except Exception as e:
             logging.error("Failed to read %s: %s", file.name, e)
