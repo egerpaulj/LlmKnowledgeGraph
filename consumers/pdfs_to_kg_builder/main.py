@@ -22,7 +22,6 @@ if __name__ == '__main__':
     ollama_host = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
     ollama_model = os.getenv('OLLAMA_MODEL', 'llama3.2')
     ollama_host = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
-    ollama_model = os.getenv('OLLAMA_MODEL', 'llama3.2')
     mlflow_tracking_host = os.getenv('MLFLOW_TRACKING_HOST', 'http://localhost:5050')
     mlflow_system_prompt_id = os.getenv('MLFLOW_SYSTEM_PROMPT_ID', None)
     mlflow_user_prompt_id = os.getenv('MLFLOW_USER_PROMPT_ID', None)
