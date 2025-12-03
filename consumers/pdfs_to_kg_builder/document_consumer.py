@@ -49,12 +49,14 @@ class DocumentConsumer:
                     
                     if text:
                         logging.info(text)
-                        logging.info(f"Merging relationships")
                         
+                        logging.info(f"Get relationships")
                         relationships = self.relationships_extractor.get_relationships(text=text)
                         relationships.topic = title
-                        
                         display_relationships(relationships=relationships, console_log=True)
+                        
+                        logging.info(f"Merge relationships")
                         self.graph.add_or_merge_relationships(result=relationships, src=f"{file.name}-{title}", src_type=file.suffix.lower()[1:])
+                        
             except Exception as e:
                 logging.error("Failed to read %s: %s", file.name, e)
