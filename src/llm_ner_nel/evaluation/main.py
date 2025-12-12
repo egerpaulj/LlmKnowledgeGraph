@@ -15,6 +15,7 @@ def _parse_args():
     p = argparse.ArgumentParser(description="Evaluate entity extraction using LlmKnowledgeGraph.graph")
     p.add_argument("--csv", required=True, help="Path to CSV file (text, entities). No header expected by default.")
     p.add_argument("--model-name", required=True, help="Model name (also used as MLflow run name / experiment)")
+    p.add_argument("--strategy", default="ollama", help="inference stategy: ollama|ollama-slim|openai|gpt-oss|google")
     p.add_argument("--entities-sep", default="|", help="Separator used in ground-truth entities column (default='|')")
     p.add_argument("--text-col", type=int, default=0, help="Zero-based index for text column (default 0)")
     p.add_argument("--entities-col", type=int, default=1, help="Zero-based index for entities column (default 1)")
@@ -29,6 +30,7 @@ if __name__ == "__main__":
         evaluate_dataset(
             csv_path=args.csv,
             model_name=args.model_name,
+            strategy=args.strategy,
             entities_sep=args.entities_sep,
             text_col=args.text_col,
             entities_col=args.entities_col,

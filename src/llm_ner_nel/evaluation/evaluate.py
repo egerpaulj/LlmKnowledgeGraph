@@ -67,6 +67,7 @@ def _normalize_entities(items: Iterable[Any]) -> Set[str]:
 def evaluate_dataset(
     csv_path: str,
     model_name: str,
+    strategy:str,
     system_prompt_id: str,
     user_prompt_id: str,
     entities_sep: str = "|",
@@ -84,10 +85,8 @@ def evaluate_dataset(
         
         entity_extractor = EntityInferenceProvider(
             model=model_name, 
-            ollama_host="http://localhost:11434", 
-            mlflow_tracking_host="http://localhost:5050", 
-            mlflow_system_prompt_id = system_prompt_id, 
-            mlflow_user_prompt_id = user_prompt_id)
+            strategy=strategy,
+            ollama_host="http://localhost:11434")
 
         df = pd.read_csv(csv_path, dtype=str).fillna("")
         
@@ -109,6 +108,7 @@ def evaluate_dataset(
                 ground_set = _normalize_entities(ground_items)
 
             # inference
+            start_time = time.time()
             try:
                 start_time = time.time()
                 entities = entity_extractor.get_entities(text= text)

@@ -1,0 +1,1 @@
+docker run -d --rm --network development_network --hostname ollama -v CUSTOM_OLLAMA_MODEL_PATH:/root/.ollama -p 11434:11434 --name ollama ollama/ollama:0.13.3

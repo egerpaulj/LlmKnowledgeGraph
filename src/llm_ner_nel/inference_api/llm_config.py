@@ -1,8 +1,6 @@
 class LlmConfig:
 
     def __init__(self, **kwargs):
-        # Set default values
-        self.model = kwargs.get('model', 'llama3.2')
         self.temperature = kwargs.get('temperature', 0.0)
         self.top_k = kwargs.get('top_k', 1)
         self.top_p = kwargs.get('top_p', None)
@@ -13,13 +11,12 @@ class LlmConfig:
         self.typical_p = kwargs.get('typical_p', None)
         self.num_thread = kwargs.get('num_thread', None)
 
-    model: str
     temperature: float
     top_k: int
-    top_p: float
+    top_p: float | None
     max_tokens: int
-    repeat_penalty: float
-    frequency_penalty: float
-    presence_penalty: float
-    typical_p: float
-    num_thread: int
+    repeat_penalty: float | None
+    frequency_penalty: float | None
+    presence_penalty: float | None
+    typical_p: float | None
+    num_thread: int | None

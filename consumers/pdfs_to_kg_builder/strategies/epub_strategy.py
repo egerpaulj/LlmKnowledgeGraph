@@ -28,7 +28,6 @@ class EpubProcessorStrategy(DocumentProcessorStrategyBase):
                             title = self.parse_title(text=text, file_name=file.name)
                             
                         words = text.split()
-                        chunk_size = 500
                         for i in range(0, len(words), DocumentProcessorStrategyBase.CHUNK_WORD_SIZE):
                             text = ' '.join(words[i:i + DocumentProcessorStrategyBase.CHUNK_WORD_SIZE])
                             if text.strip():

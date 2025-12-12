@@ -1,6 +1,6 @@
 [project]
 name = "llm_ner_nel"
-version = "0.4.0"
+version = "0.5.0"
 description = "Use an LLM to run inference, for NER (named entity recognition) and/or NEL (named entity linking). Build a knowledge graph. Evaluate results."
 readme = "readme.py.md"
 requires-python = ">=3.10.16"
@@ -17,6 +17,9 @@ dependencies = [
     "psutil",  # Process and system utilities
     "pymongo",  # MongoDB driver
     "mlflow",  # MLflow for managing machine learning experiments
+    "openai", # OpenAi client
+    "google-genai", # Google AI studio client
+    "tenacity" # Retry with exponential backoff
 ]
 
 [project.urls]

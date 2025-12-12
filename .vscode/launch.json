@@ -18,6 +18,14 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             }
+        },
+         {
+            "name": "Python: Debug Notebook",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }

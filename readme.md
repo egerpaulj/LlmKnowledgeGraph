@@ -143,13 +143,12 @@ Model: **gemma3:27b**
 from llm_ner_nel.inference_api.relationship_inference import RelationshipInferenceProvider, display_relationships
 from llm_ner_nel.knowledge_graph.graph import KnowledgeGraph
 
-relationships_extractor = RelationshipInferenceProvider(
-            model="gemma3:27b",  
-            ollama_host="http://localhost:11434", 
-            mlflow_tracking_host="http://localhost:5000", 
-            mlflow_system_prompt_id = None, # if mlflow prompt repository is not setup ("NER_System/1")
-            mlflow_user_prompt_id = None #  if mlflow prompt repository is not setup ("NER_User/1")
-)
+from llm_ner_nel.inference_api.relationship_inference import RelationshipInferenceProvider, display_relationships
+from llm_ner_nel.knowledge_graph.graph import KnowledgeGraph
+graph = KnowledgeGraph()
+
+inference_provider = RelationshipInferenceProvider(model="gemini-2.5-flash-lite",strategy="google") 
+inference_provider = RelationshipInferenceProvider(model="llama3.2",strategy="ollama") 
         
 graph=KnowledgeGraph()
 

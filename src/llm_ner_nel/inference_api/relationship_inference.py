@@ -1,12 +1,14 @@
 from llm_ner_nel.core.dto import Relationships
-from llm_ner_nel.inference_api.prompts import default_entity_recognition_system_prompt, default_entity_recognition_user_prompt
+from llm_ner_nel.inference_api.mlflow_config import MlFlowConfig
+from llm_ner_nel.inference_api.prompts import default_knowledge_graph_user_prompt, default_knowledge_graph_system_prompt
 from llm_ner_nel.inference_api.llm_config import LlmConfig
-from ollama import Client
+from llm_ner_nel.inference_api.strategies.strategy_factory import create_inference_strategy_local
 import logging
 import mlflow
+from mlflow import genai
 
 
-def display_relationships(relationships : Relationships, console_log: bool) -> None:
+def display_relationships(relationships : Relationships, console_log: bool = True) -> None:
     logging.info(relationships.topic)
     for rel in relationships.relationships:
         message = f"{rel.head}:({rel.head_confidence}) ({rel.head_type}) --[{rel.relation}]-> {rel.tail}:({rel.tail_confidence}) ({rel.tail_type})"
@@ -17,15 +19,14 @@ def display_relationships(relationships : Relationships, console_log: bool) -> N
 
 class RelationshipInferenceProvider:
     model: str
-    ollama_host: str
-    llm_config: LlmConfig
-    mlflow_tracking_host: str
-    mlflow_system_prompt_id: str
-    mlflow_user_prompt_id: str
+    strategy: str
+    mlflow_config: MlFlowConfig
+    
+    
     
     def __init__(self, **kwargs):
         self.model = kwargs.get('model', "llama3.2")
-        self.llm_config = LlmConfig(model=self.model,
+        self.llm_config = LlmConfig(
                        temperature = 0.5,
                        top_p = 0.3,
                        typical_p = 0.9,
@@ -36,45 +37,29 @@ class RelationshipInferenceProvider:
                        presence_penalty = 0.1,
                        num_thread = 16
                        )
-        self.ollama_host =  kwargs.get('ollama_host', "http://localhost:11434")
-        self.mlflow_tracking_host =  kwargs.get('mlflow_tracking_host', "http://localhost:5050")
-        self.mlflow_system_prompt_id =  kwargs.get('mlflow_system_prompt_id', None)
-        self.mlflow_user_prompt_id =  kwargs.get('mlflow_user_prompt_id', None)
-        self.client=Client(host=self.ollama_host)
-        mlflow.set_tracking_uri(self.mlflow_tracking_host)
+        
+        self.mlflow_config =  kwargs.get('mlflow_config', MlFlowConfig())
+        
+        self.inference_strategy = create_inference_strategy_local(
+            name=kwargs.get('strategy', "ollama"), 
+            llm_config=self.llm_config)
+        
+        mlflow.set_tracking_uri(self.mlflow_config.tracking_host)
 
     def inference(self, prompt: str, system: str) -> Relationships:
-        options = {
-            "top_k": self.llm_config.top_k,
-            "top_p": self.llm_config.top_p,
-            "max_tokens": self.llm_config.max_tokens,
-            "temperature": self.llm_config.temperature,
-            "repeat_penalty": self.llm_config.repeat_penalty,
-            "frequency_penalty": self.llm_config.frequency_penalty,
-            "typical_p": self.llm_config.typical_p,
-            "num_thread": self.llm_config.num_thread,
-        }
-        logging.info(self.ollama_host)
-        
-        response = self.client.generate(
-                                prompt=prompt,
-                                system=system,
-                                model=self.llm_config.model,
-                                format=Relationships.model_json_schema(),
-                                options = options)
-        return Relationships.model_validate_json(response.response)
+        return self.inference_strategy.inference(prompt=prompt, system=system, model=self.model, json_response_type=Relationships)
 
-    def generate_prompt(self, text):
-        if(self.mlflow_user_prompt_id is None):
-            return default_entity_recognition_user_prompt(text=text)
+    def generate_prompt(self, text) -> str:
+        if(self.mlflow_config.mlflow_user_prompt_id is None):
+            return default_knowledge_graph_user_prompt(text=text)
                     
-        return mlflow.genai.load_prompt(f"prompts:/{self.mlflow_user_prompt_id}").format(text=text)
+        return str(genai.load_prompt(f"prompts:/{self.mlflow_config.mlflow_user_prompt_id}").format(text=text))
     
-    def generate_system_prompt(self):
-        if(self.mlflow_user_prompt_id is None):
-            return default_entity_recognition_system_prompt
+    def generate_system_prompt(self) -> str:
+        if(self.mlflow_config.mlflow_system_prompt_id is None):
+            return default_knowledge_graph_system_prompt
         
-        return mlflow.genai.load_prompt(f"prompts:/{self.mlflow_system_prompt_id}").format()
+        return str(genai.load_prompt(f"prompts:/{self.mlflow_config.mlflow_system_prompt_id}").format())
 
     def get_relationships(self, text: str) -> Relationships:
         cleaned = text

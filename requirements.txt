@@ -7,3 +7,6 @@ prometheus_client
 psutil
 pymongo
 mlflow
+openai
+google-genai
+tenacity
