@@ -16,7 +16,7 @@ The null hypothesis holds. Including the system prompt, within the user prompt w
 
 **Note:** The server components are a black box on the cloud. The behaviour can change without notice. 
 
-**Hint:** Evaluate with a small data set before deciding on a strategy. Evaluate prediocially over time.
+**Hint:** Evaluate with a small data set before deciding on a strategy. Evaluate periodically over time.
 
 ### --> GPT 4o-mini
 
@@ -41,7 +41,7 @@ No significant latency issues.
 
 **Conclusion:**
 
-F1 Score improves when using a system prompt. 
+F1 Score degrades when using a system prompt. 
 
 No significant latency issues. Slight latency fluctuations observed.
 
