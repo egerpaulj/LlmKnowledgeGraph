@@ -22,13 +22,17 @@ class OpenAIStrategy(LLMProviderStrategy):
         self.llm_config = llm_config
 
     def inference(self, prompt: str, system: str, model: str, json_response_type: Type[T]) -> T:
-        
-        single_user_prompt = self.create_single_prompt(prompt= prompt, system=system, json_response_type=json_response_type)
-        
         response = self.client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "user", "content": single_user_prompt}
+                {
+                    "role": "system", 
+                    "content": system
+                },
+                {
+                    "role": "user", 
+                    "content": prompt
+                }
             ]
         )
         
@@ -37,4 +41,4 @@ class OpenAIStrategy(LLMProviderStrategy):
         if content is None:
             raise ValueError("OpenAI API returned empty content")
         
-        return json_response_type.model_validate_json(self.parse_json_block(content))
+        return json_response_type.model_validate_json(content)
