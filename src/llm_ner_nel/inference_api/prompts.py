@@ -19,31 +19,31 @@ Input: "In 2022, Tesla partnered with Panasonic to expand its battery production
 
 Result:
 {   
-    entities = [       
+    entities : [       
             {
-                "name"="Tesla",
-                "type"="Organization",
-                "confidence"=1.0,
+                "name":"Tesla",
+                "type":"Organization",
+                "confidence":1.0,
             },
             {
-                "name"="Panasonic",
-                "type"="Organization",
-                "confidence"=1.0,
+                "name":"Panasonic",
+                "type":"Organization",
+                "confidence":1.0,
             },
             {
-                "name"="Gigafactory Nevada",
-                "type"="Facility/Location",
-                "confidence"=1.0,
+                "name":"Gigafactory Nevada",
+                "type":"Facility/Location",
+                "confidence":1.0,
             },
             {
-                "name"="Elon Musk",
-                "type"="Person",
-                "confidence"=1.0,
+                "name":"Elon Musk",
+                "type":"Person",
+                "confidence":1.0,
             },
             {
-                "name"="Next-generation cells",
-                "type"="Product/Technology",
-                "confidence"=1.0,
+                "name":"Next-generation cells",
+                "type":"Product/Technology",
+                "confidence":1.0,
             }
         ]
     }

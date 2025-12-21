@@ -5,6 +5,7 @@ from llm_ner_nel.inference_api.strategies.ollama import OllamaStrategy
 from llm_ner_nel.inference_api.strategies.ollama_slim import OllamaSlimStrategy
 from llm_ner_nel.inference_api.strategies.openai import OpenAIStrategy
 from llm_ner_nel.inference_api.strategies.gpt_oss import GptOssStrategy
+from llm_ner_nel.inference_api.strategies.openai_slim import OpenAISlimStrategy
 
 
 def create_inference_strategy_local(name: str, llm_config: LlmConfig, ollama_host = "http://localhost:11434") -> LLMProviderStrategy:
@@ -13,6 +14,8 @@ def create_inference_strategy_local(name: str, llm_config: LlmConfig, ollama_hos
         return GoogleStrategy()
     if name=="openai":
         return OpenAIStrategy(llm_config=llm_config)
+    if name=="openai-slim":
+        return OpenAISlimStrategy(llm_config=llm_config)
     if name == "gpt-oss":
         return GptOssStrategy(llm_config=llm_config)
     if name == "ollama-slim":
