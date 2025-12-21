@@ -10,7 +10,7 @@ from mlflow import genai
 
 def display_entities(entities : Entities, console_log: bool) -> None:
     for entity in entities.entities:
-        message = f"{entity.name}-[{entity.type}]. ({entity.condifence})"
+        message = f"{entity.name}-[{entity.type}]. ({entity.confidence})"
         logging.info(message)
         
         if(console_log):
