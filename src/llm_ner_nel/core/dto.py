@@ -13,7 +13,7 @@ class Ner(BaseModel):
     type: str = Field(
         description="type of the extracted head entity like Person, Company, etc"
     )
-    condifence: float = Field(
+    confidence: float = Field(
         description="confidence score between 0 and 1 for the head entity"
     )
     
