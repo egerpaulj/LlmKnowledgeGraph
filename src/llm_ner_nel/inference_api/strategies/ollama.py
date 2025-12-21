@@ -12,9 +12,6 @@ class OllamaStrategy(LLMProviderStrategy):
 
     def inference(self, prompt: str, system: str, model: str, json_response_type: Type[T]) -> T:
         options = {
-            "top_k": self.llm_config.top_k,
-            "top_p": self.llm_config.top_p,
-            "max_tokens": self.llm_config.max_tokens,
             "temperature": self.llm_config.temperature,
             "repeat_penalty": self.llm_config.repeat_penalty,
             "frequency_penalty": self.llm_config.frequency_penalty,

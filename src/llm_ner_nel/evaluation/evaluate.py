@@ -18,6 +18,7 @@ import logging
 import time
 
 import pandas as pd
+from llm_ner_nel.inference_api.mlflow_config import MlFlowConfig
 import mlflow
 from llm_ner_nel.inference_api.entity_inference import EntityInferenceProvider, get_unique_entity_names
 
@@ -80,13 +81,14 @@ def evaluate_dataset(
     mlflow.set_tracking_uri("http://localhost:5050")
     mlflow_exp = mlflow_experiment or model_name
     mlflow.set_experiment(mlflow_exp)
-    with mlflow.start_run(run_name=f"GPU-ENTITY-ONLY-TEST-{model_name}-{user_prompt_id}-{system_prompt_id}"):
+    with mlflow.start_run(run_name=f"{model_name}-{system_prompt_id.split('@')[1]}_{strategy}"):
 
         
         entity_extractor = EntityInferenceProvider(
             model=model_name, 
             strategy=strategy,
-            ollama_host="http://localhost:11434")
+            ollama_host="http://localhost:11434",
+            mlflow_config = MlFlowConfig(mlflow_system_prompt_id=system_prompt_id, mlflow_user_prompt_id=user_prompt_id))
 
         df = pd.read_csv(csv_path, dtype=str).fillna("")
         

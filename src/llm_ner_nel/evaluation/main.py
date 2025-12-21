@@ -27,6 +27,7 @@ def _parse_args():
 if __name__ == "__main__":
     args = _parse_args()
     try:
+        logger.info("Starting evaluation with model: %s", args.model_name)
         evaluate_dataset(
             csv_path=args.csv,
             model_name=args.model_name,

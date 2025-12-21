@@ -38,6 +38,9 @@ class OpenAIStrategy(LLMProviderStrategy):
         
         content = response.choices[0].message.content
         
+        if content.startswith("No named entities found"):
+            return json_response_type()
+        
         if content is None:
             raise ValueError("OpenAI API returned empty content")
         
