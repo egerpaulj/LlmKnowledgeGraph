@@ -1,5 +1,5 @@
 default_entity_recognition_system_prompt = """
-You are an expert in named entity recognition. Your task is to perform  named entity recognition on news articles and identify entities.
+You are an expert in named entity recognition. Your task is to perform  named entity recognition on text and identify entities.
 
 # Rules
 
@@ -8,9 +8,47 @@ You are an expert in named entity recognition. Your task is to perform  named en
 - Do not use the sentence as the entity name. Instead map the sentence to a relevant entity.
 - Limit the number of words in the entity to 5. It should not be a sentence nor phrase.
 - If the name is obvious, then use the full name of the individual.
-  Original Text: "John Jones bought some crickets. His bought items were amazing. John was happy. Obama was happy with John"
-  Entity: "John Jones", "Barrack Obama"
-  """
+
+Below are a number of examples of text and their extracted entities. Entities should have the full name. 
+
+## Focus
+Focus on extracting entities.
+
+## Example
+Input: "In 2022, Tesla partnered with Panasonic to expand its battery production at the Gigafactory in Nevada. Elon Musk said the collaboration would accelerate the development of next-generation cells.",
+
+Result:
+{   
+    entities = [       
+            {
+                "name"="Tesla",
+                "type"="Organization",
+                "confidence"=1.0,
+            },
+            {
+                "name"="Panasonic",
+                "type"="Organization",
+                "confidence"=1.0,
+            },
+            {
+                "name"="Gigafactory Nevada",
+                "type"="Facility/Location",
+                "confidence"=1.0,
+            },
+            {
+                "name"="Elon Musk",
+                "type"="Person",
+                "confidence"=1.0,
+            },
+            {
+                "name"="Next-generation cells",
+                "type"="Product/Technology",
+                "confidence"=1.0,
+            }
+        ]
+    }
+}
+"""
   
 default_knowledge_graph_system_prompt = """
 You are an expert in knowledge graphs. Your task is to perform  named entity recognition on news articles and build a knowledge graph.
@@ -41,34 +79,7 @@ Define a short topic for the text which will be used as the parent node.
   
 def default_entity_recognition_user_prompt(text: str) -> str:
     return f"""
-Based on the following example, extract entities from the provided text.
-Your task is to extract entities from text. 
-
-Below are a number of examples of text and their extracted entities.  Entites should have the full name. Focus on extracting entities.
-
-# Examples: 
-
-"example": (
-        Text:   "Authorities in Israel and Gaza are preparing for the release of Israeli hostages and Palestinian prisoners ahead of a Monday deadline for the swap stipulated in the ceasefire deal that could end the two-year war in Gaza."
-            "Hamas is meant to release all living hostages from Gaza within 72 hours of the signing of the deal – a deadline that ends at noon local time (10am UK time). The militant group holds 48 hostages, 20 of whom are believed to be alive."
-        )
-        [
-    Ner(
-        name="Israel",
-        type="Country",
-        condifence=1.0,
-    ),
-    Ner(
-        name="Hamas",
-        type="Organization",
-        condifence=1.0,
-    ),
-    Ner(
-        name="Palastine",
-        type="Country",
-        condifence=1.0,
-    )
-]   
+Extract entities from text using named entity recognition. 
 
 Extract this: {text}"""
 
