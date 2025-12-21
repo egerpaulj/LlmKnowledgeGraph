@@ -29,8 +29,7 @@ class OpenAIStrategy(LLMProviderStrategy):
             model=model,
             messages=[
                 {"role": "user", "content": single_user_prompt}
-            ],
-            temperature=self.llm_config.temperature
+            ]
         )
         
         content = response.choices[0].message.content
