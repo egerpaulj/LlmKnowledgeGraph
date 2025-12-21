@@ -9,7 +9,7 @@ class GoogleStrategy(LLMProviderStrategy):
         
         key = api_key or os.environ.get("GEMINI_API_KEY")
         if not key:
-             raise ValueError("Missing GEMINIE_API_KEY environment variable")
+             raise ValueError("Missing GEMINI_API_KEY environment variable")
         self.client = genai.Client(api_key=key)
 
     def inference(self, prompt: str, system: str, model: str, json_response_type: Type[T]) -> T:
