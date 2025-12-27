@@ -20,6 +20,7 @@ import time
 import pandas as pd
 import mlflow
 from llm_ner_nel.inference_api.entity_inference import EntityInferenceProvider, get_unique_entity_names
+from llm_ner_nel.inference_api.mlflow_config import MlFlowConfig
 
 
 logger = logging.getLogger(__name__)
@@ -86,6 +87,7 @@ def evaluate_dataset(
         entity_extractor = EntityInferenceProvider(
             model=model_name, 
             strategy=strategy,
+            mlflow_config= MlFlowConfig(mlflow_system_prompt_id=system_prompt_id, mlflow_user_prompt_id=user_prompt_id),
             ollama_host="http://localhost:11434")
 
         df = pd.read_csv(csv_path, dtype=str).fillna("")
