@@ -1,0 +1,6 @@
+MATCH (n)
+WHERE any(l IN labels(n) WHERE toLower(l) CONTAINS "NAME")
+   OR any(prop IN keys(n)
+          WHERE n[prop] IS NOT NULL
+          AND toLower(toString(n[prop])) CONTAINS "NAME")
+RETURN n;

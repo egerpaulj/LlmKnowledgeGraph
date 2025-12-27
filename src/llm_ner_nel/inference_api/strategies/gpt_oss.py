@@ -23,9 +23,17 @@ class GptOssStrategy(LLMProviderStrategy):
         response = self.client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "user", "content": single_user_prompt}
+                {
+                    "role": "system", 
+                    "content": system
+                },
+                {
+                    "role": "user", 
+                    "content": prompt
+                }
             ],
-            temperature=self.llm_config.temperature)
+            temperature=self.llm_config.temperature,
+            extra_body={"reasoning_effort": "medium"})
         
         
         result_str = response.choices[0].message.content

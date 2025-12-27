@@ -19,12 +19,13 @@ class OllamaSlimStrategy(LLMProviderStrategy):
         single_user_prompt = self.create_single_prompt(prompt= prompt, system=system, json_response_type=json_response_type)
         
         logging.info(f"Ollama host (slim): {self.client._client.base_url}")
-
+        logging.info(f"Ollama slim prompt: {prompt}")
         response = self.client.generate(
             prompt=single_user_prompt,
             model=model,
-            options=options
+            format=json_response_type.model_json_schema(),
+            options=options,
+            
         )
-        
-        json = self.parse_json_block(response.response)
-        return json_response_type.model_validate_json(json)
+        logging.info(f"Ollama slim response: {response.response}")
+        return json_response_type.model_validate_json(response.response)
