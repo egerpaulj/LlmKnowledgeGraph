@@ -1,7 +1,7 @@
 class LlmConfig:
 
     def __init__(self, **kwargs):
-        self.temperature = kwargs.get('temperature', 0.0)
+        self.temperature = kwargs.get('temperature', 1.0)
         self.top_k = kwargs.get('top_k', 1)
         self.top_p = kwargs.get('top_p', None)
         self.max_tokens = kwargs.get('max_tokens', 40)
