@@ -82,7 +82,7 @@ def evaluate_dataset(
     mlflow.set_tracking_uri("http://localhost:5050")
     mlflow_exp = mlflow_experiment or model_name
     mlflow.set_experiment(mlflow_exp)
-    with mlflow.start_run(run_name=f"{model_name}-{system_prompt_id.split('@')[1]}_{strategy}"):
+    with mlflow.start_run(run_name=f"{model_name}-{system_prompt_id.split('@')[1]}_vllm"):
 
         
         entity_extractor = EntityInferenceProvider(
