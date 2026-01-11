@@ -397,19 +397,120 @@ F1 &= 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \
 $$
 
 
-
-
 ## Experiments
 
 Publish the evaluation metrics for each "experiment". 
 
 ML-Flow is a good tool for analysis.
 
-<img src="documentation/eval_experiments.png" width="800"/>
+Below is an example of using ML-Flow to experiment hypotheses and evaluate.
+
+**Hypothesis: using a system prompt does not yield any significant improvements.**
+
+
+[See Experiment](documentation/experiment_system_prompt.md)
 
 ## Metrics
 
-<img src="documentation/eval_metrics.png" width="1200"/>
+Below are some evaluations which helps defines metrics to pick the appropriate strategy:
+- LLM Model
+- Local vs. Cloud
+- Estimate costs
+- Precision and Recall
+- Latency
+
+### F1-Score
+
+Run several models, with various prompting strategies.
+Evaluate and pick the best F1 Score.
+<img src="evaluation/eval_f1_best.png" width="800"/>
+
+### Latency
+Run several models, locally and on the cloud.
+Evaluate and pick the best performing latency.
+
+<img src="evaluation/eval_latency_fastest.png" width="800"/>
+
+### Precision and Recall
+
+Evaluate the precision and recall:
+
+<img src="evaluation/eval_precisions_highest.png" width="800"/>
+
+<img src="evaluation/eval_recall_highest.png" width="800"/>
+
+
+
+
+### Conclude evaluation
+
+Pick the metric most significant, then short-list the models, and do a cost analysis.
+
+To evaluate several weights can be given to each of the metric.
+
+E.g. load your metrics and use a ranker to evaluate:
+
+**(e.g. Latency: 3, Precision:2 and F1: 1)**
+
+
+[See example evaluation -- evaluation.ipynb](evaluation/evaluation.ipynb)
+
+
+## Conclusion (local vs. cloud)
+
+### NER Workflow Metrics Summary
+
+### Key Metrics:
+
+* **Latency:** Processing millions of documents can take a significant amount of time.
+* **F1 Score:** Measures precision and recall balance.
+* **Cost:** Affected by whether processing is done locally or in the cloud.
+
+### Inference Cost (24/7, Nvidia 4060 TI):
+
+* **Estimated electricity cost:** ~$20
+
+---
+
+### **Local Workflows**
+
+| Model                 | F1 Score | Latency (ms) | Conclusion                                             |
+| --------------------- | -------- | ------------ | ------------------------------------------------------ |
+| **gemma3:12b-entity** | 0.539062 | 10,048.05    | Too slow. Consider trying a quantized version on VLLM. |
+| **qwen3:14b-entity**  | 0.531746 | 7,883.89     | Good candidate to run locally.                         |
+
+**Note:** Running **qwen3:14b-entity** on local hardware for 500,000 documents would take approximately **45 days**, with an estimated cost of **$35**.
+
+---
+
+### **Cloud Workflows**
+
+| Model                            | F1 Score | Latency (ms) | Cost (for 500,000 docs)               | Conclusion                          |
+| -------------------------------- | -------- | ------------ | ------------------------------------- | ----------------------------------- |
+| **gemini-2.5-flash-lite-entity** | 0.530035 | 1,741.75     | **Google API:** **$150** (21 days)    | Good candidate to run on the cloud. |
+| **Vertex AI**                    | 0.530035 | 1,741.75     | **$75** (1-3 days, with 50% discount) | Fast and cost-effective for cloud.  |
+
+---
+
+### Final Takeaways:
+
+* **Local:** If running locally, **qwen3:14b-entity** is a good option with a reasonable cost (~$35 for 500,000 docs), but may take a long time (45 days).
+
+* **Cloud:** For faster processing, **Vertex AI** offers the best balance between cost and speed, potentially processing in 1-3 days for $75 (with a discount).
+
+#### 500,000 Documents summary
+
+| **Model**                                | **F1 Score** | **Estimated Duration**   | **Cost**                |
+| ---------------------------------------- | ------------ | ------------------------ | ----------------------- |
+| **gemma3:12b-entity (local)**            | 0.539062     | (not estimated) | ~$45  |
+| **qwen3:14b-entity (local)**             | 0.531746     | ~45 days                  | ~$35  |
+| **gemini-2.5-flash-lite-entity (cloud)** | 0.530035     | ~21 days (Google API)     | ~$150       |
+| **Vertex AI (cloud)**                    | 0.530035     | ~1-3 days                 | ~$75 (with vertex discount)    |
+
+
+
+
+
 
 ## License
 
