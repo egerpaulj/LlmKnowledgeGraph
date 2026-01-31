@@ -412,7 +412,7 @@ Below is an example of using ML-Flow to experiment hypotheses and evaluate.
 
 ## Metrics
 
-Below are some evaluations which helps defines metrics to pick the appropriate strategy:
+Below are some evaluations, the evaluations are based on the following metrics:
 - LLM Model
 - Local vs. Cloud
 - Estimate costs
