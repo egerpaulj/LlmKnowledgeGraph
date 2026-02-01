@@ -1,13 +1,12 @@
+from llm_ner_nel.logging.logging_service import init_logging
 from rabbitmq_knowledge_graph_builder import Consumer
 
 import sys
 import logging
 import os
 
-logging.basicConfig(
-    level=logging.INFO,  # Set the minimum log level
-    format='%(asctime)s - %(levelname)s - %(message)s',
-)
+init_logging(app_name='llm_rabbit_to_knowledge_graph')
+
 
 if __name__ == '__main__':
     host = os.getenv('RABBITMQ_HOST', 'localhost')

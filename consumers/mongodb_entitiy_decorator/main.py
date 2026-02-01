@@ -5,12 +5,10 @@ import threading
 import os
 import psutil
 
+from llm_ner_nel.logging.logging_service import init_logging
 from mongodb_entity_extractor import MongoDBConsumer
 
-logging.basicConfig(
-    level=logging.INFO,  # Set the minimum log level
-    format='%(asctime)s - %(levelname)s - %(message)s',
-)
+init_logging(app_name='llm_mongo_db_entity_decorator')
 
 CPU_USAGE = Gauge('process_cpu_percent_mongodb', 'Process CPU usage percent')
 MEMORY_USAGE = Gauge('process_memory_mb_mongodb', 'Process memory usage in MB')
@@ -29,6 +27,7 @@ def monitor_resources():
                 time.sleep(5)
 
 if __name__ == "__main__":
+    
     consumer = MongoDBConsumer(
         database="Crawler",
         collection="crawler_responses_cleaned"

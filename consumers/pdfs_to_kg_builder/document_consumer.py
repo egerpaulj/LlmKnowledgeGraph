@@ -5,10 +5,6 @@ from pathlib import Path
 from strategies.pdf_strategy import PdfProcessorStrategy
 from strategies.epub_strategy import EpubProcessorStrategy
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-)
 
 class DocumentConsumer:
     def __init__(self, 
@@ -41,22 +37,29 @@ class DocumentConsumer:
                 logging.warning("Skipping unsupported file: %s", file.name)
                 continue
             
+            page_count = 1
             try:
                 for document_page in strategy.process(str(file)):
                     title = document_page.title
                     text = document_page.text
-                    logging.info(f"Processing: {file.name} - {title}")
+                    logging.info(f"Processing Page: {page_count}. File: {file.name}. Title: {title}.")
                     
-                    if text:
-                        logging.info(text)
-                        
-                        logging.info(f"Get relationships")
-                        relationships = self.relationships_extractor.get_relationships(text=text)
-                        relationships.topic = title
-                        display_relationships(relationships=relationships, console_log=True)
-                        
-                        logging.info(f"Merge relationships")
-                        self.graph.add_or_merge_relationships(result=relationships, src=f"{file.name}-{title}", src_type=file.suffix.lower()[1:])
+                    try:
+                        if text:
+                            logging.debug(text)
+                            
+                            logging.info(f"Infer relationships")
+                            relationships = self.relationships_extractor.get_relationships(text=text)
+                            relationships.topic = title
+                            display_relationships(relationships=relationships, console_log=True)
+                            
+                            logging.info(f"Merge relationships to GraphDB")
+                            self.graph.add_or_merge_relationships(result=relationships, src=f"{file.name}-{title}", src_type=file.suffix.lower()[1:])
+                            page_count = page_count + 1
+                        else:
+                            logging.warning(f"Skipping, text empty on Page: {page_count}. {file.name} - {title}.")    
+                    except Exception as e:
+                        logging.error(f"Failed on Page: {page_count}. {file.name} - {title}. {e}" )
                         
             except Exception as e:
                 logging.error("Failed to read %s: %s", file.name, e)

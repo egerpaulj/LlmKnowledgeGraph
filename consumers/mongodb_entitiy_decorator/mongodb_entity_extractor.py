@@ -3,13 +3,8 @@ from pymongo import MongoClient
 from prometheus_client import Counter, Summary
 import logging
 import os
-import psutil
 from llm_ner_nel.inference_api.entity_inference import EntityInferenceProvider, display_entities, get_unique_entity_names
 
-logging.basicConfig(
-    level=logging.INFO,  # Set the minimum log level
-    format='%(asctime)s - %(levelname)s - %(message)s',
-)
 
 MESSAGE_COUNT = Counter('messages_processed_total_mongodb', 'Total number of messages processed')
 MESSAGE_FAIL_COUNT = Counter('messages_processed_total_mongodb_failed', 'Total number of messages processed')
@@ -34,8 +29,6 @@ class MongoDBConsumer:
             mlflow_tracking_host=mlflow_tracking_host, 
             mlflow_system_prompt_id=mlflow_system_prompt_id,
             mlflow_user_prompt_id=mlflow_user_prompt_id)
-        
-        self.logger = logging.getLogger(__name__)
 
     def extract_entities(self):
         try:
@@ -43,7 +36,7 @@ class MongoDBConsumer:
             
             # Get total count for logging purposes
             total_docs = self.collection.count_documents(query)
-            self.logger.info(f"Found {total_docs} documents to process")
+            logging.info(f"Found {total_docs} documents to process")
 
             processed = 0
             while True:
@@ -63,13 +56,13 @@ class MongoDBConsumer:
                             uri = doc["src"]
                             id=doc["_id"]
                             
-                            self.logger.info(f"Processing: {uri}, with text: {text}, id:{id}")
+                            logging.info(f"Processing: {uri}, with text: {text}, id:{id}")
                             entities = self.entity_extractor.get_entities(text=text)
                             
-                            display_entities(entities=entities)
+                            display_entities(entities=entities, console_log=True)
                             unique_entity_names = get_unique_entity_names(entities=entities)
                             
-                            self.logger.info(f"Adding entities to mongodb: {uri}")
+                            logging.info(f"Adding entities to mongodb: {uri}")
                             
                             self.collection.update_one(
                                 {"_id": id},
@@ -79,17 +72,17 @@ class MongoDBConsumer:
                             processed += 1
                             
                             if processed % 100 == 0:
-                                self.logger.info(f"Processed {processed}/{total_docs} documents")
+                                logging.info(f"Processed {processed}/{total_docs} documents")
                                 
                         except Exception as e:
                             MESSAGE_FAIL_COUNT.inc()
-                            self.logger.error(f"Error processing document {doc['_id']}. Uri: {uri}: {str(e)}")
+                            logging.error(f"Error processing document {doc['_id']}. {str(e)}")
                             continue
 
-            self.logger.info(f"Completed processing {processed} documents")
+            logging.info(f"Completed processing {processed} documents")
             
         except Exception as e:
-            self.logger.error(f"Error in batch processing: {str(e)}")
+            logging.error(f"Error in batch processing: {str(e)}")
         finally:
             self.client.close()
             

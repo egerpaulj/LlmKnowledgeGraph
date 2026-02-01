@@ -10,3 +10,4 @@ mlflow
 PyPDF2
 EbookLib
 beautifulsoup4
+elasticsearch>=7.0.0,<8.0.0
