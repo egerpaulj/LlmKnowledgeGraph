@@ -2,6 +2,7 @@ from llm_ner_nel.inference_api.relationship_inference import RelationshipInferen
 from llm_ner_nel.knowledge_graph.graph import KnowledgeGraph 
 import logging
 from pathlib import Path
+
 from strategies.pdf_strategy import PdfProcessorStrategy
 from strategies.epub_strategy import EpubProcessorStrategy
 
@@ -28,7 +29,7 @@ class DocumentConsumer:
         if not folder.exists():
             logging.error("Folder does not exist: %s", folder_path)
             return
-        for file in folder.iterdir():
+        for file in folder.rglob("*"):
             if not file.is_file():
                 continue
             

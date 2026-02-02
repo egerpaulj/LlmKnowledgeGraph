@@ -14,7 +14,7 @@ def display_relationships(relationships : Relationships, console_log: bool = Tru
         message = f"{rel.head}:({rel.head_confidence}) ({rel.head_type}) --[{rel.relation}]-> {rel.tail}:({rel.tail_confidence}) ({rel.tail_type})"
         if(console_log):
             print(message)
-        logging.info(message)
+        logging.debug(message)
         
 
 class RelationshipInferenceProvider:
