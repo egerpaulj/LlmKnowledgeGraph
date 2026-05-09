@@ -48,7 +48,8 @@ class EntityInferenceProvider:
         
         self.inference_strategy = create_inference_strategy_local(
             name=kwargs.get('strategy', "ollama"), 
-            llm_config=self.llm_config)
+            llm_config=self.llm_config,
+            ollama_host=kwargs.get('ollama_host', "http://ollama:11434"))
 
     def inference(self, prompt: str, system: str) -> Entities:
         return self.inference_strategy.inference(prompt=prompt, system=system, model=self.model, json_response_type=Entities)

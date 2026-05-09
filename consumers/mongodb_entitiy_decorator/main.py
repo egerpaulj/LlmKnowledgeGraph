@@ -27,10 +27,12 @@ def monitor_resources():
                 time.sleep(5)
 
 if __name__ == "__main__":
+    collection_name = ollama_host = os.getenv('MONGODB_COLLECTION', 'decorator_me')
+    database_name = ollama_host = os.getenv('MONGODB_DATABASE', 'test')
     
     consumer = MongoDBConsumer(
-        database="Crawler",
-        collection="crawler_responses_cleaned"
+        database=database_name,
+        collection=collection_name
         
     )
     start_http_server(7777)

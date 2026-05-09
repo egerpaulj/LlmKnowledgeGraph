@@ -21,4 +21,4 @@ ENV LOGGING_ELASTICSEARCH_INDEX=logs-python-apps
 
 EXPOSE 7777
 
-CMD ["python", "main.py "]
+CMD ["python", "main.py"]

@@ -8,3 +8,4 @@ psutil
 pymongo
 mlflow
 elasticsearch>=7.0.0,<8.0.0
+llm_ner_nel

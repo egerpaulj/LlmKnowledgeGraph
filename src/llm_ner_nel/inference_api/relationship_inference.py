@@ -42,7 +42,8 @@ class RelationshipInferenceProvider:
         
         self.inference_strategy = create_inference_strategy_local(
             name=kwargs.get('strategy', "ollama"), 
-            llm_config=self.llm_config)
+            llm_config=self.llm_config,
+            ollama_host=kwargs.get('ollama_host', "http://ollama:11434"))
         
         mlflow.set_tracking_uri(self.mlflow_config.tracking_host)
 
